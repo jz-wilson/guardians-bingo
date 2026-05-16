@@ -10,10 +10,12 @@ fn kv_err(e: worker::kv::KvError) -> worker::Error {
 }
 
 pub async fn get_meta(kv: &KvStore, code: &str) -> worker::Result<Option<RoomMeta>> {
-    kv.get(&format!("room:{}:meta", code))
-        .json::<RoomMeta>()
-        .await
-        .map_err(kv_err)
+    match kv.get(&format!("room:{}:meta", code)).text().await.map_err(kv_err)? {
+        None => Ok(None),
+        Some(s) => serde_json::from_str(&s)
+            .map(Some)
+            .map_err(|e| worker::Error::RustError(e.to_string())),
+    }
 }
 
 pub async fn put_meta(kv: &KvStore, m: &RoomMeta) -> worker::Result<()> {
@@ -28,10 +30,12 @@ pub async fn put_meta(kv: &KvStore, m: &RoomMeta) -> worker::Result<()> {
 }
 
 pub async fn get_state(kv: &KvStore, code: &str) -> worker::Result<Option<RoomState>> {
-    kv.get(&format!("room:{}:state", code))
-        .json::<RoomState>()
-        .await
-        .map_err(kv_err)
+    match kv.get(&format!("room:{}:state", code)).text().await.map_err(kv_err)? {
+        None => Ok(None),
+        Some(s) => serde_json::from_str(&s)
+            .map(Some)
+            .map_err(|e| worker::Error::RustError(e.to_string())),
+    }
 }
 
 pub async fn put_state(kv: &KvStore, code: &str, s: &RoomState) -> worker::Result<()> {
