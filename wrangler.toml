@@ -1,0 +1,10 @@
+name = "guardians-bingo"
+main = "build/worker/shim.mjs"
+compatibility_date = "2026-05-01"
+
+[build]
+command = "cargo install -q worker-build && worker-build --release"
+
+[[kv_namespaces]]
+binding = "BINGO_ROOMS"
+id      = "deb707db60164442b436cb05c228baac"
